@@ -7,15 +7,18 @@ package pe.edu.pucp.centralizacionbancariasoft.models;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -26,7 +29,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Roberto
  */
-//PRUEBA
 public class LectorSicop {
     //private List<DataSicop> datos;
     private List<DataSicop> soles;
@@ -57,10 +59,28 @@ public class LectorSicop {
     }
     
     private Date convertirAFecha(String fechaString) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        // Convertir el String formateado de vuelta a un objeto Date
-        // Verificar si el año es menor a 2000
-        return formatter.parse(fechaString);
+        SimpleDateFormat formatter1 = new SimpleDateFormat("d/M/yyyy HH:mm:ss");
+        SimpleDateFormat formatter2 = new SimpleDateFormat("d/M/yyyy HH:mm");
+        SimpleDateFormat formatter3 = new SimpleDateFormat("d/M/yyyy");
+
+        Date fecha;
+
+        try {
+            fecha = formatter1.parse(fechaString);
+        } catch (ParseException e1) {
+            try {
+                fecha = formatter2.parse(fechaString);
+            } catch (ParseException e2) {
+                try {
+                    fecha = formatter3.parse(fechaString);
+                } catch (ParseException e3) {
+                    throw new ParseException("Formato de fecha invalido: " +
+                            '"' +fechaString+ '"', 0);
+                }
+            }
+        }
+
+        return fecha;
     }
     
     public void resumenArchivo(){

@@ -6,9 +6,12 @@ package pe.edu.pucp.centralizacionbancariasoft.models;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,6 +122,7 @@ public class MacroBCP {
         int result = 0;
         // Crear un nuevo libro de trabajo de Excel
         formatearFechasVencimiento();
+        ordenarDatos();
         System.out.println("FECHAS CON FORMATO");
         Workbook workbook = new XSSFWorkbook();
 
@@ -245,6 +249,15 @@ public class MacroBCP {
             // Agregar la fecha de vencimiento al conjunto correspondiente al código de depositante
             depositanteFechasVencimiento.get(codigoDepositante).add(fechaVencimiento);
         }
+    }
+    
+    public void ordenarDatos() {
+        // Ordenar por codigoDepositante ascendente y fechaVencimiento descendente
+        Comparator<FormatoBCP> comparator = Comparator.comparing(FormatoBCP::getCodigoDepositante)
+                                                      .thenComparing(FormatoBCP::getFechaVencimiento, Comparator.reverseOrder());
+
+        // Ordenar la lista
+        datos.sort(comparator);
     }
     
 }
