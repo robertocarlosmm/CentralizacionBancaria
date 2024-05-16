@@ -26,6 +26,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Roberto
  */
+//PRUEBA
 public class LectorSicop {
     //private List<DataSicop> datos;
     private List<DataSicop> soles;
