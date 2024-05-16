@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -115,6 +117,7 @@ public class MacroBBVA {
     }
     public int generarExcel(){
         int result = 0;
+        ordenarDatos();
         // Crear un nuevo libro de trabajo de Excel
         Workbook workbook = new XSSFWorkbook();
 
@@ -187,6 +190,20 @@ public class MacroBBVA {
             e.printStackTrace();
         }
         return result;
+    }
+    
+    public void ordenarDatos() {
+        Collections.sort(datos, new Comparator<FormatoBBVA>() {
+            @Override
+            public int compare(FormatoBBVA o1, FormatoBBVA o2) {
+                int comparacionDni = o1.getDniPostulante().compareTo(o2.getDniPostulante());
+                if (comparacionDni != 0) {
+                    return comparacionDni;
+                } else {
+                    return o2.getFechaVencimiento().compareTo(o1.getFechaVencimiento());
+                }
+            }
+        });
     }
     
 }

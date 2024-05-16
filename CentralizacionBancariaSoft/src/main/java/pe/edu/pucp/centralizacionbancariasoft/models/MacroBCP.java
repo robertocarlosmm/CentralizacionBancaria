@@ -6,8 +6,6 @@ package pe.edu.pucp.centralizacionbancariasoft.models;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
