@@ -7,18 +7,15 @@ package pe.edu.pucp.centralizacionbancariasoft.models;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -161,19 +158,56 @@ public class LectorSicop {
         }
     }
     
+    /*private String[] parseCSV(String input) {
+        // Lista para almacenar los campos extraídos
+        List<String> fieldsList = new ArrayList<>();
+
+        // Expresión regular para manejar campos entre comillas y comillas dobles
+        Pattern pattern = Pattern.compile("\"([^\"]*?)(?:\"{2})*([^\"]*?)\"|([^,]+)");
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            if (matcher.group(1) != null || matcher.group(2) != null) {
+                // Concatena las partes capturadas y reemplaza comillas dobles por una sola comilla
+                String matched = matcher.group(1) + matcher.group(2);
+                matched = matched.replaceAll("\"{2}", "\"");
+                fieldsList.add(matched);
+            } else {
+                fieldsList.add(matcher.group(3));
+            }
+        }
+
+        // Convierte la lista a un array de cadenas
+        String[] fieldsArray = new String[fieldsList.size()];
+        fieldsArray = fieldsList.toArray(fieldsArray);
+
+        // Elimina las comillas restantes al principio y al final si existen
+        for (int i = 0; i < fieldsArray.length; i++) {
+            String field = fieldsArray[i];
+            if (field.startsWith("\"") && field.endsWith("\"")) {
+                field = field.substring(1, field.length() - 1);
+                fieldsArray[i] = field;
+            }
+        }
+
+        return fieldsArray;
+    }*/
+
     private String[] separarCampos(String linea) {
         List<String> camposList = new ArrayList<>();
         boolean dentroDeComillas = false;
         StringBuilder campoActual = new StringBuilder();
-
+        //System.out.println(linea);
          // Verificar y quitar comillas al inicio y al final de la línea si están presentes
+        linea = linea.replaceAll("\"\"\"\"", " \" ");
+        linea = linea.replaceAll("\"\"", "\"");
         if (linea.startsWith("\"") && linea.endsWith("\"")) {
             //System.out.println("CASO DOBLE COMILLA");
             //System.out.println(linea);
             linea = linea.substring(1, linea.length() - 1);
-            for (int i = 0; i < linea.length(); i++) {
+            /*for (int i = 0; i < linea.length(); i++) {
                 char c = linea.charAt(i);
-                if (i + 1 < linea.length() && c == '"' && linea.charAt(i+1) == '"') {
+                if (i + 3 < linea.length() && c == '"' && linea.charAt(i+1) == '"') {
                     dentroDeComillas = !dentroDeComillas;
                 } else if (c == ',' && !dentroDeComillas) {
                     camposList.add(campoActual.toString().trim());
@@ -181,8 +215,9 @@ public class LectorSicop {
                 } else {
                     campoActual.append(c);
                 }
-            }
-        }else{
+            }*/
+        }//else{
+        //System.out.println("usaré: "+linea);
             for (int i = 0; i < linea.length(); i++) {
                 char c = linea.charAt(i);
                 if (c == '"') {
@@ -195,7 +230,7 @@ public class LectorSicop {
                     campoActual.append(c);
                 }
             }
-        }
+        //}
         
 
         camposList.add(campoActual.toString());
