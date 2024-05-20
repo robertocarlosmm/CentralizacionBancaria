@@ -96,9 +96,21 @@ public class MacroBBVA {
             // Manejar la excepción si la fecha no se puede parsear correctamente
             e.printStackTrace();
         }
+        
         for(DataCenturia dc : dataCenturia){
-            datos.add(new FormatoBBVA(dc.getRazonSocial(), dc.getNumDoi(), dc.getSerie(), 
+            try{
+                if(dc.getMonto() >= getMontoMinimo()){
+                    datos.add(new FormatoBBVA(dc.getRazonSocial(), dc.getNumDoi(), dc.getSerie(), 
                     dc.getNumero(), dc.getFechaVencimiento(), fechaBloqueo, dc.getMonto()));
+                }else{
+                    errores.add(new ErrorMacro("CENTURIA", String.valueOf(dc.getNumLinea()), 
+                        "ADVERTENCIA: No se copió porque el importe es menor al monto mínimo de "
+                        +getMontoMinimo()));
+                }
+            }catch(Exception e){
+                errores.add(new ErrorMacro("CENTURIA", String.valueOf(dc.getNumLinea()), 
+                        "ERROR: NO SE PUDO ASIGNAR ESTE REGISTRO"));
+            }
         }
     }
     
@@ -123,7 +135,7 @@ public class MacroBBVA {
 
         // Crear una hoja en el libro de trabajo
         Sheet hoja = workbook.createSheet("Datos_BBVA");
-        Sheet hoja2 = workbook.createSheet("ADVERTENCIAS_ERRORES_BCP");
+        Sheet hoja2 = workbook.createSheet("ADVERTENCIAS_ERRORES_BBVA");
         //primero asignamos los datos de la hoja 2
         Row encabezados2 = hoja2.createRow(0);
         String[] nombresEncabezados2 = {"ARCHIVO", "NUMERO DE LINEA", "DETALLES"};
