@@ -200,6 +200,10 @@ public class LectorCenturia {
 
                     // Asignar los valores de las columnas a los campos correspondientes de DataCenturia
                     numLinea = rowNum; // Número de línea
+                    if ( row.getZeroHeight()) {
+                        //System.out.println("NO SE PROCESARÁ: "+ numLinea);
+                        continue; // Omitir la fila actual
+                    }
                     //fechaVencimiento = convertirAFecha(getCellValueAsString(row.getCell(6))); // Columna 7 (Fecha de vencimiento)
                     fechaVencimiento = (row.getCell(6)).getDateCellValue();
                     //System.out.println("fefffff "+fechaVencimiento);
