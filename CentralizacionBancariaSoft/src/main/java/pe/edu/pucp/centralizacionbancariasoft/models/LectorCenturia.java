@@ -155,47 +155,71 @@ public class LectorCenturia {
         JOptionPane.showMessageDialog(null, mensaje, "Advertencia", JOptionPane.WARNING_MESSAGE);
     }
     
-    public int readExcelFile(String filePath) {
-        //List<String> dataList = new ArrayList<>();
-        List<String[]> rowDataList = new ArrayList<>();
-        try {
-            InputStream myFile = new FileInputStream(new File(filePath));
-            XSSFWorkbook wb = new XSSFWorkbook(myFile);
-            XSSFSheet sheet = wb.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
-            int rowNum = 1;
+public int readExcelFile(String filePath) {
+    List<String[]> rowDataList = new ArrayList<>();
+    System.out.println("Inicio del método readExcelFile");
+    try {
+        InputStream myFile = new FileInputStream(new File(filePath));
+        System.out.println("Archivo cargado: " + filePath);
+        
+        XSSFWorkbook wb = new XSSFWorkbook(myFile);
+        System.out.println("Archivo Excel abierto correctamente");
 
-            // Verificar los encabezados
-            Row headerRow = rowIterator.next();
-            headerRow = rowIterator.next();
-            rowNum++;
-            if (!verifyHeaders(headerRow)) {
-                errores.add(new ErrorCenturia(2,"Los encabezados del archivo Excel no coinciden con los encabezados esperados."));
-                System.err.println("Los encabezados del archivo Excel no coinciden con los encabezados esperados.");
-                mostrarAdvertenciaERROR("Error CENTURIA: Los encabezados del archivo Excel no coinciden con los encabezados esperados.");
-                return -1;
+        XSSFSheet sheet = wb.getSheetAt(0);
+        System.out.println("Primera hoja cargada: " + sheet.getSheetName());
+        
+        Iterator<Row> rowIterator = sheet.iterator();
+        int rowNum = 1;
+
+        // Buscar la fila de encabezados dinámicamente
+        System.out.println("Buscando la fila de encabezados...");
+        Row headerRow = null;
+        while (rowIterator.hasNext()) {
+            Row currentRow = rowIterator.next();
+            Cell firstCell = currentRow.getCell(0); // Celda A
+            String cellValue = getCellValueAsString(firstCell);
+
+            if (!cellValue.isEmpty()) {
+                headerRow = currentRow;
+                System.out.println("Encabezados encontrados en la fila: " + rowNum);
+                break;
             }
-            int columnIndex;
-            String cellValue;
-            Cell cell;
-            int numLinea;
-            Date fechaVencimiento;
-            String serie;
-            int numero;
-            String numDoi;
-            String razonSocial;
-            int moneda;
-            double monto;
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                rowNum++;
+            rowNum++;
+        }
 
-                // Ignorar la primera y segunda fila (encabezados y línea en blanco)
-                if (rowNum <= 2) {
-                    continue;
-                }
+        if (headerRow == null) {
+            System.err.println("No se encontraron encabezados en el archivo.");
+            mostrarAdvertenciaERROR("Error CENTURIA: No se encontraron encabezados en el archivo.");
+            return -1;
+        }
 
-                try {
+        System.out.println("Comenzando la verificación de encabezados...");
+        if (!verifyHeaders(headerRow)) {
+            errores.add(new ErrorCenturia(rowNum, "Los encabezados del archivo Excel no coinciden con los encabezados esperados."));
+            System.err.println("Error: Los encabezados no coinciden");
+            mostrarAdvertenciaERROR("Error CENTURIA: Los encabezados del archivo Excel no coinciden con los encabezados esperados.");
+            return -1;
+        }
+        System.out.println("Encabezados verificados correctamente");
+
+       /* int columnIndex;
+        String cellValue;
+        Cell cell;*/
+        int numLinea;
+        Date fechaVencimiento;
+        String serie;
+        int numero;
+        String numDoi;
+        String razonSocial;
+        int moneda;
+        double monto;
+        //String monedaStr;
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            rowNum++;
+            System.out.println("Procesando fila: " + rowNum);
+
+            try {
                     // Crear una instancia de DataCenturia para almacenar los datos de esta fila
 
                     // Asignar los valores de las columnas a los campos correspondientes de DataCenturia
@@ -296,15 +320,18 @@ public class LectorCenturia {
                     // También puedes agregar la línea a una lista de errores si lo deseas
                     errores.add(new ErrorCenturia(rowNum, e.getMessage()));
                 }
-                
-            }
-        } catch (Exception e) {
-            mostrarAdvertenciaERROR("Error CENTURIA: Error al leer el archivo");
-            e.printStackTrace();
-            return -1;
         }
-        return 1;
+    } catch (Exception e) {
+        System.err.println("Error al leer el archivo: " + e.getMessage());
+        mostrarAdvertenciaERROR("Error CENTURIA: Error al leer el archivo");
+        e.printStackTrace();
+        return -1;
     }
+    System.out.println("Archivo procesado correctamente");
+    return 1;
+}
+
+
 
     private String getCellValueAsString(Cell cell) {
         DataFormatter formatter = new DataFormatter(); // Formateador para manejar todos los formatos de celda
@@ -312,55 +339,61 @@ public class LectorCenturia {
     }
     
     private boolean verifyHeaders(Row headerRow) {
-        String[] expectedHeaders = {
-            "Fecha De Analisi Al",
-            "Cuenta contable",
-            "Descripcion cuenta contable",
-            "Estado",
-            "Voucher",
-            "Fecha de emsion",
-            "Fecha de vencimiento",
-            "Año",
-            "Tipo",
-            "Serie",
-            "Numero",
-            "Tipo DOI",
-            "N° DOI",
-            "Nombre O Razon Social",
-            "Concatenado",
-            "Moneda",
-            "Importe . Históricos S/",
-            "Importe\n Históricos $",
-            "T.C.",
-            "Importe S/. Ajustado",
-            "Codigo Unidad",
-            "Nombre De Unidad",
-            "Nombre Subunidad"
-        };
-        Iterator<Cell> cellIterator = headerRow.cellIterator();
-        int cellNum = 0;
+    String[] expectedHeaders = {
+        "Fecha De Analisi Al",
+        "Cuenta contable",
+        "Descripcion cuenta contable",
+        "Estado",
+        "Voucher",
+        "Fecha de emsion",
+        "Fecha de vencimiento",
+        "Año",
+        "Tipo",
+        "Serie",
+        "Numero",
+        "Tipo DOI",
+        "N° DOI",
+        "Nombre O Razon Social",
+        "Concatenado",
+        "Moneda",
+        "Importe . Históricos S/",
+        "Importe\n Históricos $",
+        "T.C.",
+        "Importe S/. Ajustado",
+        "Codigo Unidad",
+        "Nombre De Unidad",
+        "Nombre Subunidad"
+    };
 
-        while (cellIterator.hasNext()) {
-            Cell cell = cellIterator.next();
-            if (cellNum >= expectedHeaders.length) {
-                System.out.println("Hay más celdas de las esperadas");
-                return false;
-            }
-            if (!cell.getStringCellValue().trim().equals(expectedHeaders[cellNum])) {
-                System.out.println("El encabezado '" + cell.getStringCellValue().trim() + "' no coincide");
-                return false;
-            }
-            cellNum++;
-        }
+    Iterator<Cell> cellIterator = headerRow.cellIterator();
+    int cellNum = 0;
 
-        if (cellNum != expectedHeaders.length) {
-            System.out.println("Faltan encabezados en la fila");
+    while (cellIterator.hasNext()) {
+        Cell cell = cellIterator.next();
+        if (cellNum >= expectedHeaders.length) {
+            System.out.println("Hay más celdas de las esperadas");
             return false;
         }
 
-
-        return cellNum == expectedHeaders.length; // Verificar si hay suficientes celdas
+        // Obtener el valor de la celda como String usando un método seguro
+        String cellValue = getCellValueAsString(cell);
+        if (!cellValue.trim().equals(expectedHeaders[cellNum])) {
+            System.out.println("El encabezado '" + cellValue + "' no coincide con '" + expectedHeaders[cellNum] + "'");
+            return false;
+        }
+        cellNum++;
     }
+
+    if (cellNum != expectedHeaders.length) {
+        System.out.println("Faltan encabezados en la fila");
+        return false;
+    }
+
+    return true;
+}
+
+
+
     
     public void leerArchivo() {
         File selectedFile = getFileFromChooser();
